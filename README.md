@@ -67,6 +67,10 @@ The replicated buffer path depends on Linux hugetlb support. The crate also supp
 Buffer construction returns an error when the host does not support hugetlb
 allocation or when the requested hugepages are not configured.
 
+For host-specific CPU placement and channel assumptions, define a
+`LinuxHardwareSpec` and apply it to the existing builders instead of relying on
+crate-level hardcoded core ids.
+
 For a lower-level Linux-only API closer to the original C++ design, use
 `LinuxHedgedReader<T>`. It spawns one pinned worker per replica and runs
 user-provided `wait_work` / `final_work` callbacks directly on those threads.

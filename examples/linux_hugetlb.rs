@@ -1,21 +1,22 @@
-use tailslayer::{
-    ChannelValidation, CpuPinning, HedgedRuntime, HugePageSize, IdleStrategy, ReplicatedBuffer,
-};
+use tailslayer::{HedgedRuntime, HugePageSize, IdleStrategy, LinuxHardwareSpec, ReplicatedBuffer};
 
 fn main() -> tailslayer::Result<()> {
+    // Adjust these host-specific settings to match your machine.
+    let hardware = LinuxHardwareSpec {
+        channel_bit: Some(8),
+        hugepage_size: HugePageSize::Size1GiB,
+        ..LinuxHardwareSpec::new([11, 12])
+    };
+
     let mut buffer = ReplicatedBuffer::<u8>::builder()
         .capacity(1024)
-        .replicas(2)
-        .channels(2)
-        .channel_offset_bytes(256)
-        .hugepage_size(HugePageSize::Size1GiB)
-        .validation(ChannelValidation::Pagemap { channel_bit: 8 })
+        .linux_hardware_spec(&hardware)
         .build()?;
 
     buffer.extend_from_slice(&[0x43, 0x44])?;
 
     let runtime = HedgedRuntime::builder(buffer)
-        .cpu_pinning(CpuPinning::exact([11, 12]))
+        .linux_hardware_spec(&hardware)
         .idle_strategy(IdleStrategy::Spin)
         .build()?;
 

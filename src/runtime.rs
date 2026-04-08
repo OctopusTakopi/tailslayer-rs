@@ -66,6 +66,12 @@ impl<T: Copy + Send + Sync + 'static> HedgedRuntimeBuilder<T> {
         self
     }
 
+    /// Applies a Linux hardware spec to the worker pinning policy.
+    pub fn linux_hardware_spec(mut self, spec: &crate::linux_hardware::LinuxHardwareSpec) -> Self {
+        self.cpu_pinning = spec.cpu_pinning();
+        self
+    }
+
     /// Sets the waiting strategy used by workers and readers.
     pub fn idle_strategy(mut self, idle_strategy: IdleStrategy) -> Self {
         self.idle_strategy = idle_strategy;

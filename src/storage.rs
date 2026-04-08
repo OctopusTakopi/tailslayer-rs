@@ -98,6 +98,14 @@ impl<T: Copy> ReplicatedBufferBuilder<T> {
         self
     }
 
+    /// Applies a Linux hardware spec to the layout and validation settings.
+    pub fn linux_hardware_spec(mut self, spec: &crate::linux_hardware::LinuxHardwareSpec) -> Self {
+        self.layout = spec.layout_spec();
+        self.hugepage_size = spec.hugepage_size;
+        self.validation = spec.validation();
+        self
+    }
+
     /// Builds an empty replicated buffer.
     pub fn build(self) -> Result<ReplicatedBuffer<T>> {
         ReplicatedBuffer::with_options(

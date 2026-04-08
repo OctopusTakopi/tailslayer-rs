@@ -10,14 +10,17 @@ fn main() -> tailslayer::Result<()> {
         Arc,
         atomic::{AtomicUsize, Ordering},
     };
-    use tailslayer::{CORE_MAIN, HugePageSize, LinuxHedgedReader, pin_to_core};
+    use tailslayer::{HugePageSize, LinuxHardwareSpec, LinuxHedgedReader};
 
-    pin_to_core(CORE_MAIN)?;
+    // Adjust these host-specific settings to match your machine.
+    let hardware = LinuxHardwareSpec {
+        hugepage_size: HugePageSize::Size2MiB,
+        ..LinuxHardwareSpec::new([11, 12])
+    };
 
     let mut reader = LinuxHedgedReader::<u8>::builder()
+        .linux_hardware_spec(&hardware)
         .capacity(16)
-        .replicas(2)
-        .hugepage_size(HugePageSize::Size2MiB)
         .build()?;
     reader.insert(0x43)?;
     reader.insert(0x44)?;

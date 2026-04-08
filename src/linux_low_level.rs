@@ -1,3 +1,4 @@
+use crate::linux_hardware::LinuxHardwareSpec;
 use crate::storage::{ChannelValidation, HugePageSize, ReplicatedBuffer};
 use crate::{Error, LayoutSpec, Result, sys};
 use std::marker::PhantomData;
@@ -7,11 +8,9 @@ use std::thread::{self, JoinHandle};
 use std::time::Duration;
 
 /// Default worker core used for the first replica.
-pub const CORE_MEAS_A: usize = 11;
+const CORE_MEAS_A: usize = 11;
 /// Default worker core used for the second replica.
-pub const CORE_MEAS_B: usize = 12;
-/// Default coordinator core from the original project.
-pub const CORE_MAIN: usize = 14;
+const CORE_MEAS_B: usize = 12;
 
 /// Pins the current thread to a specific CPU.
 pub fn pin_to_core(core: usize) -> Result<()> {
@@ -76,6 +75,15 @@ impl<T: Copy + Send + Sync + 'static> LinuxHedgedReaderBuilder<T> {
     /// Enables or disables physical-channel validation.
     pub fn validation(mut self, validation: ChannelValidation) -> Self {
         self.validation = validation;
+        self
+    }
+
+    /// Applies a Linux hardware spec to the layout, validation, and worker cores.
+    pub fn linux_hardware_spec(mut self, spec: &LinuxHardwareSpec) -> Self {
+        self.layout = spec.layout_spec();
+        self.hugepage_size = spec.hugepage_size;
+        self.validation = spec.validation();
+        self.worker_cores = Some(spec.worker_cpus.clone());
         self
     }
 
