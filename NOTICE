@@ -1,0 +1,5 @@
+This product includes software derived from the original tailslayer project:
+https://github.com/LaurieWired/tailslayer
+
+This repository contains a Rust port and redesign of that work.
+The original project is distributed under the Apache License, Version 2.0.
